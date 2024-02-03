@@ -8,6 +8,7 @@ from rest_framework.response import Response
 
 from .models import User
 from .serializers import UserSerializer
+from .send_email_celery import send_activation_email
 
 
 class UserViewSet(DjoserUserViewSet):
@@ -16,6 +17,4 @@ class UserViewSet(DjoserUserViewSet):
     serializer_class = UserSerializer
     pagination_class = PageNumberPagination
     permission_classes = (AllowAny,)
-
-
 

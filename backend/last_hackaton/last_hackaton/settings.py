@@ -11,15 +11,16 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '158.160.9.246']
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "rest_framework.authtoken",
-    "djoser",
-    "rest_framework",
+    'rest_framework.authtoken',
+    'djoser',
+    'rest_framework',
     'users',
     'api',
     'drf_yasg',
@@ -99,6 +100,12 @@ EMAIL_HOST_USER = 'ams800v@gmail.com'
 EMAIL_HOST_PASSWORD = 'drbb ulgh fnod tpsg'
 EMAIL_PORT = 587
 
+REDIS_HOST = 'redis'
+REDIS_PORT = '6379'
+
+CELERY_BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT
+CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT
+
 DJOSER = {
     "SERIALIZERS": {
         "user": "users.serializers.UserSerializer",
@@ -137,3 +144,31 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
+
+JAZZMIN_SETTINGS = {
+    "site_brand": "Admin",
+    "welcome_sign": "Спасибо Тима за Jazzmin.",
+    "copyright": "Acme Library Ltd",
+    "search_model": ["auth.User", "auth.Group"],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": False,
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": False,
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
+    "language_chooser": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "theme": "darkly",
+    "dark_mode_theme": "cyborg",
+}

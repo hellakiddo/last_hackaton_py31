@@ -8,3 +8,6 @@ django-filter
 drf-yasg
 djoser
 python-dotenv
+celery
+redis
+django-jazzmin
