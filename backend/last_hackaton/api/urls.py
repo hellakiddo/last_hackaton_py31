@@ -4,7 +4,8 @@ from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from users.views import UserViewSet
+from users.views import UserViewSet, ProfileViewSet
+from posts.views import GroupViewSet, PostViewSet, FollowViewSet, AsyncFeedViewSet
 
 
 app_name = "api"
@@ -12,6 +13,11 @@ app_name = "api"
 router = DefaultRouter()
 
 router.register(r"users", UserViewSet, basename="users")
+router.register(r"groups", GroupViewSet, basename="groups")
+router.register(r"posts", PostViewSet, basename="posts")
+router.register(r"follows", FollowViewSet, basename="follows")
+router.register(r'feeds', AsyncFeedViewSet, basename='feed')
+router.register(r'profiles', ProfileViewSet, basename='profile')
 
 schema_view = get_schema_view(
     openapi.Info(

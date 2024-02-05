@@ -11,3 +11,5 @@ python-dotenv
 celery
 redis
 django-jazzmin
+django-cors-headers
+python-slugify

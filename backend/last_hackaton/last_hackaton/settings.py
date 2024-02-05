@@ -5,7 +5,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY", default="default")
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'backend', '158.160.9.246']
@@ -19,7 +18,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
+    'corsheaders',
     'djoser',
+    'posts',
     'rest_framework',
     'users',
     'api',
@@ -31,6 +32,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -59,8 +61,10 @@ WSGI_APPLICATION = 'last_hackaton.wsgi.application'
 
 CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1', 'http://localhost',
-    'http://158.160.9.246',
+    'http://158.160.9.246', 'http://localhost:3000'
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 DATABASES = {
     "default": {
