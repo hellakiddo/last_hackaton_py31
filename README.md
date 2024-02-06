@@ -57,13 +57,11 @@ docker-compose exec <имя_контейнера_бэкэнда> python3 manage.
 ```python
 docker-compose exec <имя_контейнера_бэкэнда> python manage.py createsuperuser
 ```
-Проект доступен по домену:
+Проект доступен по адресу:
 ```python
 http://158.160.9.246
 ```
 ---
-
-## Все работает!
 
 ### *Авторы*
 
