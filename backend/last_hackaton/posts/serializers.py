@@ -1,22 +1,25 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from drf_base64.fields import Base64ImageField
 
 from .models import Group, Post, Comment, GroupSubscription
 
 class GroupSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
     class Meta:
         model = Group
         fields = ('title', 'slug', 'description', 'image')
 
+
 class CommentSerializer(serializers.ModelSerializer):
     """Комменты."""
+    author_username = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
         model = Comment
         fields = (
-            'id', 'post', 'author', 'text', 'pub_date', 'parent_comment'
+            'id', 'post', 'author_username', 'text', 'pub_date', 'parent_comment'
         )
+
 
 class PostSerializer(serializers.ModelSerializer):
     """Посты."""
@@ -30,7 +33,6 @@ class PostSerializer(serializers.ModelSerializer):
             'id',
             'text',
             'pub_date',
-            'author',
             'author_username',
             'group',
             'image',
@@ -57,19 +59,22 @@ class GroupSubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupSubscription
         fields = ('user', 'group')
-        read_only_fields = ('user', )
 
     def to_representation(self, instance):
         return {
-            'group_id': instance.group.id,
-            'group_title': instance.group.title,
-            'user_id': instance.user.id,
-            'user_username': instance.user.username,
+            'message': f'Вы подписались на группу - {instance.group.title}',
         }
+    def validate(self, data):
+        user = data['user']
+        group = data['group']
+        if GroupSubscription.objects.all().filter(
+                user=user, group=group
+        ).exists():
+            raise ValidationError('Вы уже подписаны на данную группу.')
+        return data
 
 class FeedSerializer(serializers.ModelSerializer):
     """Лента - Посты групп и пользователей на которых подписан автор."""
-    image = Base64ImageField()
     username = serializers.SerializerMethodField()
     hashtags = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True, read_only=True)

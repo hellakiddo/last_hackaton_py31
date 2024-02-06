@@ -39,28 +39,6 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ('post', 'author', 'text', 'pub_date')
     search_fields = ('text', 'author__username')
 
-@admin.register(Follow)
-class FollowAdmin(admin.ModelAdmin):
-    list_display = ('user', 'author')
-
 @admin.register(Feed)
 class FeedAdmin(admin.ModelAdmin):
     list_display = ('user', 'post', 'group_post')
-
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'first_name', 'last_name')
-    search_fields = ("username", "email")
-
-@admin.register(Profile)
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('get_username', 'bio', 'icon')
-
-    def get_username(self, obj):
-        return obj.user.username
-    get_username.short_description = "Username"
-
-    def icon(self, obj):
-        return mark_safe(f'<img src="{obj.avatar.url}" width="50" height="50" />')
-
-    icon.short_description = "Картинка"

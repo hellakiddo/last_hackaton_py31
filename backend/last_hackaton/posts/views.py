@@ -18,22 +18,29 @@ from users.models import Follow
 
 
 class GroupViewSet(viewsets.ModelViewSet):
-    """Тут не работает PATCH НАДО ЧИНИТЬ."""
+    """Группы."""
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (IsOwnerAdminOrReadOnly, )
+    permission_classes = (IsAuthenticated, )
 
-    @action(detail=True, methods=('post',))
-    def follow_group(self, request, id):
+    @action(
+        detail=True,
+        methods=('post',)
+    )
+    def follow_group(self, request, pk):
         group = self.get_object()
         serializer = GroupSubscriptionSerializer(
-            data={'user': request.user.id, 'group': group.id}
+            data={'user': request.user.id, 'group': group.pk}
         )
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=HTTPStatus.CREATED)
 
-    @action(detail=True, methods=('delete',))
-    def unfollow_group(self, request, id):
+    @action(
+        detail=True,
+        methods=('delete',)
+    )
+    def unfollow_group(self, request, pk):
         group = self.get_object()
         subscription = GroupSubscription.objects.filter(
             user=request.user, group=group
@@ -46,7 +53,10 @@ class GroupViewSet(viewsets.ModelViewSet):
             status=HTTPStatus.NOT_FOUND
         )
 
-    @action(detail=False, methods=('post',))
+    @action(
+        detail=False,
+        methods=('post',)
+    )
     def create_group(self, request):
         serializer = GroupSerializer(data=request.data)
         if serializer.is_valid():
@@ -54,7 +64,11 @@ class GroupViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=HTTPStatus.CREATED)
         return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
 
-    @action(detail=True, methods=('delete',))
+    @action(
+        detail=True,
+        methods=('delete',),
+        permission_classes=(IsOwnerAdminOrReadOnly, )
+    )
     def delete_group(self, request, id):
         instance = self.get_object()
         if request.user == instance.owner:
@@ -68,7 +82,8 @@ class GroupViewSet(viewsets.ModelViewSet):
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
+    """Посты."""
+    queryset = Post.objects.select_related('author', 'group').all()
     serializer_class = PostSerializer
     permission_classes = (IsAuthorAdminOrReadOnly, )
 
