@@ -119,3 +119,4 @@ class AsyncFeedViewSet(viewsets.ModelViewSet):
     @async_to_sync
     async def get_queryset(self):
         return await self.async_get_queryset()
+
