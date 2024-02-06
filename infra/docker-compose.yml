@@ -23,7 +23,6 @@ services:
     depends_on:
       - redis
     container_name: backend
-    networks:
       - backend
 
   db:
@@ -38,6 +37,7 @@ services:
       - backend
 
   celery:
+#    image: celery
     build:
       context: ../backend/
     command: celery -A last_hackaton worker
