@@ -2,7 +2,7 @@
 # Xwitter - пародия на Twitter(X)
 
 Последний учебный проект в Maker's, в который мы вложили душу, время и последние нервы. 🥰🥰🥰
-![Badge](https://github.com/hellakiddo/last_hackaton_py31/actions/workflows/last_hackaton_py31_workflow.yaml/badge.svg)
+![Badge](https://github.com/hellakiddo/last_hackaton_py31/actions/workflows/last_workflow.yml/badge.svg)
 ---
 
 ### Что мы использовали:
