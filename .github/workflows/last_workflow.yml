@@ -62,7 +62,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            cd food
+            cd last/infra
             sudo docker stop $(docker ps -q)
             sudo docker rm $(docker ps -a -q)
             sudo docker rmi $(docker images -q)
