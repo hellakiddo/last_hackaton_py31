@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import UniqueConstraint, CheckConstraint
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -56,6 +57,46 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User,
+        related_name='follower',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    author = models.ForeignKey(
+        User,
+        related_name='following',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    followers = models.ManyToManyField(
+        User,
+        related_name='following_users',
+        through='Follow',
+        through_fields=('author', 'user'),
+        blank=True,
+    )
+
+    following = models.ManyToManyField(
+        User,
+        related_name='followers',
+        through='Follow',
+        through_fields=('user', 'author'),
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        UniqueConstraint(fields=['author', 'user'], name='re-subscription')
+        CheckConstraint(name='prevent_self_follow', check=~models.Q(user=models.F('author')), )
+
+    def __str__(self):
+        return '{} подписан на {}'.format(self.user, self.author)
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

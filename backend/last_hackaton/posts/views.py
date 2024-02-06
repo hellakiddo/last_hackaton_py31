@@ -1,21 +1,21 @@
 from http import HTTPStatus
 
 from asgiref.sync import async_to_sync
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Group, Post, Comment, Follow, GroupSubscription, Feed
+from .models import Group, Post, Comment, GroupSubscription, Feed
 from .permissions import IsAuthorAdminOrReadOnly
 from .serializers import (
     GroupSerializer,
     PostSerializer,
-    CommentSerializer, FollowSerializer,
+    CommentSerializer,
     GroupSubscriptionSerializer, FeedSerializer
 )
-
-from users.serializers import UserSerializer
+from users.models import Follow
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -88,39 +88,17 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response(status=HTTPStatus.NO_CONTENT)
 
 
-class FollowViewSet(viewsets.ModelViewSet):
-    queryset = Follow.objects.all()
-    serializer_class = FollowSerializer
-    permission_classes = (IsAuthenticated,)
-
-    @action(detail=True, methods=('post',))
-    def follow(self, request, id):
-        user_to_follow = self.get_object().author
-        serializer = FollowSerializer(
-            data={
-                'user': request.user.id, 'author': user_to_follow.id}
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=HTTPStatus.CREATED)
-        return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
-
-    @action(detail=True, methods=('delete', ))
-    def unfollow(self):
-        follow_instance = self.get_object()
-        follow_instance.delete()
-        return Response(status=HTTPStatus.NO_CONTENT)
-
-
 class AsyncFeedViewSet(viewsets.ModelViewSet):
-    """Понимаю это ничего не сделает, просто тренируюсь для FastAPI."""
     serializer_class = FeedSerializer
     permission_classes = (IsAuthenticated,)
     http_method_names = ('get',)
 
     async def async_get_queryset(self):
         user = self.request.user
-        queryset = Feed.objects.all().filter(user=user)
+        following_users = Follow.objects.filter(
+            user=user).values_list('author_id', flat=True)
+        queryset = Post.objects.filter(
+            author__in=following_users).order_by('-pub_date')
         return queryset
 
     @async_to_sync

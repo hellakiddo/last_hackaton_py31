@@ -1,11 +1,14 @@
+from http import HTTPStatus
+
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
-from .models import User, Profile
+from .models import User, Profile, Follow
 from posts.serializers import (
     PostSerializer, GroupSerializer,
-    FollowSerializer, GroupSubscriptionSerializer
+    GroupSubscriptionSerializer
 )
-from posts.models import GroupSubscription, Follow
+from posts.models import GroupSubscription
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -24,10 +27,32 @@ class UserSerializer(serializers.ModelSerializer):
         ref_name = 'UserSerializerUsersApp'
 
 
+class FollowSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Follow
+        fields = ('id', 'user', 'author')
+
+    def validate(self, data):
+        user = data['user']
+        author = data['author']
+
+        if Follow.objects.filter(user=user, author=author).exists():
+            raise ValidationError(
+                "Вы уже подписаны на этого автора"
+            )
+        if user == author:
+            raise ValidationError(
+                "Подписаться на самого себя невозможно",
+                code=HTTPStatus.BAD_REQUEST,
+            )
+        return data
+
+
 class ProfileSerializer(serializers.ModelSerializer):
     posts = PostSerializer(many=True, read_only=True)
     subscriptions = serializers.SerializerMethodField()
-    subscriptions_groups = serializers.SerializerMethodField()
+    subscribers = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -37,15 +62,24 @@ class ProfileSerializer(serializers.ModelSerializer):
             'icon',
             'posts',
             'subscriptions',
-            'subscriptions_groups'
+            'subscribers',
         )
 
-    def get_subscriptions(self, obj):
-        subscriptions = Follow.objects.filter(user=obj)
-        serializer = FollowSerializer(subscriptions, many=True)
-        return serializer.data
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        user_posts = instance.user.posts.all()
+        post_serializer = PostSerializer(user_posts, many=True)
+        representation['user_posts'] = post_serializer.data
 
-    def get_subscriptions_groups(self, obj):
-        groups = GroupSubscription.objects.filter(user=obj)
-        serializer = GroupSubscriptionSerializer(groups, many=True)
-        return serializer.data
+        return representation
+
+    def get_subscriptions(self, instance):
+        subscriptions = instance.user.follower.all()
+        subscription_serializer = FollowSerializer(subscriptions, many=True)
+        return subscription_serializer.data
+
+    def get_subscribers(self, instance):
+        subscribers = instance.user.following.all()
+        subscriber_serializer = FollowSerializer(subscribers, many=True)
+        return subscriber_serializer.data
+

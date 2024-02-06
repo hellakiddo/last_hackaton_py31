@@ -3,10 +3,9 @@ from django.utils.safestring import mark_safe
 
 from posts.models import (
     Group, GroupSubscription,
-    Hashtag, Post, Comment,
-    Follow, Feed
+    Hashtag, Post, Comment, Feed
 )
-from users.models import User, Profile
+from users.models import User, Profile, Follow
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
     list_display = ('title', 'owner', 'image_display')

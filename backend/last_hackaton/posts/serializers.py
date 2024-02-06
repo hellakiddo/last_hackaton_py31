@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Group, Post, Comment, Follow, GroupSubscription, Feed
+from .models import Group, Post, Comment, GroupSubscription, Feed
+from users.models import Follow
 
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,12 +32,6 @@ class PostSerializer(serializers.ModelSerializer):
             'comments'
         )
 
-class FollowSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Follow
-        fields = ('id', 'user', 'author')
-
 
 class GroupSubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,9 +48,6 @@ class GroupSubscriptionSerializer(serializers.ModelSerializer):
         }
 
 class FeedSerializer(serializers.ModelSerializer):
-    post = PostSerializer()
-    group_post = PostSerializer()
-
     class Meta:
-        model = Feed
-        fields = ('user', 'post', 'group_post')
+        model = Post
+        fields = '__all__'

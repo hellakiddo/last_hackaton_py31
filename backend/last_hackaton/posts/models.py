@@ -20,7 +20,10 @@ class Group(models.Model):
         User, on_delete=models.CASCADE, related_name='owned_groups',
         verbose_name='Владелец'
     )
-    image = models.ImageField('Изображение группы', upload_to='media/', null=True, blank=True)
+    image = models.ImageField(
+        'Изображение группы', upload_to='media/',
+        null=True, blank=True
+    )
 
     class Meta:
         verbose_name = 'Группа'
@@ -47,7 +50,9 @@ class GroupSubscription(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['user', 'group'], name='unique_group_subscription')
+            models.UniqueConstraint(
+                fields=['user', 'group'], name='unique_group_subscription'
+            )
         ]
         verbose_name = "Подписка на группу"
         verbose_name_plural = "Подписки на группу"
@@ -105,6 +110,7 @@ class Post(models.Model):
 
     class Meta:
         ordering = ('-pub_date',)
+        verbose_name_plural = 'Посты'
 
     def __str__(self):
         return f"{self.author.username} - {self.text[:50]}"
@@ -142,34 +148,6 @@ class Comment(models.Model):
         return f'Комментарий от {self.author}'
 
 
-class Follow(models.Model):
-    """ ORM Following модель """
-    user = models.ForeignKey(
-        User,
-        related_name='follower',
-        on_delete=models.CASCADE,
-        null=True
-    )
-    author = models.ForeignKey(
-        User,
-        related_name='following',
-        on_delete=models.CASCADE,
-        null=True
-    )
-
-    class Meta:
-        """ Metaclass Follow """
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        UniqueConstraint(fields=['author', 'user'],
-                         name='re-subscription')
-        CheckConstraint(
-            name='prevent_self_follow',
-            check=~models.Q(user=models.F('author')), )
-
-
-    def __str__(self):
-        return '{} подписан на {}'.format(self.user, self.author)
 
 class Feed(models.Model):
     user = models.ForeignKey(
