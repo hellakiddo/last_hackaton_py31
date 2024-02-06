@@ -73,27 +73,11 @@ class Follow(models.Model):
         null=True
     )
 
-    followers = models.ManyToManyField(
-        User,
-        related_name='following_users',
-        through='Follow',
-        through_fields=('author', 'user'),
-        blank=True,
-    )
-
-    following = models.ManyToManyField(
-        User,
-        related_name='followers',
-        through='Follow',
-        through_fields=('user', 'author'),
-        blank=True,
-    )
-
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
-        UniqueConstraint(fields=['author', 'user'], name='re-subscription')
-        CheckConstraint(name='prevent_self_follow', check=~models.Q(user=models.F('author')), )
+        UniqueConstraint(fields=['author', 'user'], name='unique_subscription')
+        CheckConstraint(name='prevent_self_follow', check=~models.Q(user=models.F('author')))
 
     def __str__(self):
         return '{} подписан на {}'.format(self.user, self.author)

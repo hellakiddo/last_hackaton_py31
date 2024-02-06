@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from django.core.exceptions import ValidationError
-from rest_framework import serializers
+from rest_framework.serializers import SerializerMethodField, ModelSerializer
 
 from .models import User, Profile, Follow
 from posts.serializers import (
@@ -11,7 +11,7 @@ from posts.serializers import (
 from posts.models import GroupSubscription
 
 
-class UserSerializer(serializers.ModelSerializer):
+class UserSerializer(ModelSerializer):
     """Сериалайзер для создания и получение списка пользователей."""
     class Meta:
         model = User
@@ -27,7 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
         ref_name = 'UserSerializerUsersApp'
 
 
-class FollowSerializer(serializers.ModelSerializer):
+class FollowSerializer(ModelSerializer):
+    """Подписки на пользователей."""
 
     class Meta:
         model = Follow
@@ -49,10 +50,12 @@ class FollowSerializer(serializers.ModelSerializer):
         return data
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(ModelSerializer):
+    """Профиль пользователя."""
     posts = PostSerializer(many=True, read_only=True)
-    subscriptions = serializers.SerializerMethodField()
-    subscribers = serializers.SerializerMethodField()
+    subscriptions = SerializerMethodField()
+    subscribers = SerializerMethodField()
+    is_subscribed = SerializerMethodField()
 
     class Meta:
         model = Profile
@@ -63,6 +66,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             'posts',
             'subscriptions',
             'subscribers',
+            'is_subscribed',
         )
 
     def to_representation(self, instance):
@@ -70,6 +74,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         user_posts = instance.user.posts.all()
         post_serializer = PostSerializer(user_posts, many=True)
         representation['user_posts'] = post_serializer.data
+        representation['username'] = instance.user.username
 
         return representation
 
@@ -83,3 +88,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         subscriber_serializer = FollowSerializer(subscribers, many=True)
         return subscriber_serializer.data
 
+    def get_is_subscribed(self, obj):
+        request = self.context.get("request")
+        return (request.user.is_authenticated
+                and request.user.follower.filter(author=obj.user).exists())

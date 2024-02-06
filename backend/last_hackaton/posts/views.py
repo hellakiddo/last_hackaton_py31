@@ -1,14 +1,13 @@
 from http import HTTPStatus
 
 from asgiref.sync import async_to_sync
-from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Group, Post, Comment, GroupSubscription, Feed
-from .permissions import IsAuthorAdminOrReadOnly
+from .permissions import IsOwnerAdminOrReadOnly, IsAuthorAdminOrReadOnly
 from .serializers import (
     GroupSerializer,
     PostSerializer,
@@ -19,9 +18,10 @@ from users.models import Follow
 
 
 class GroupViewSet(viewsets.ModelViewSet):
+    """Тут не работает PATCH НАДО ЧИНИТЬ."""
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = (IsAuthorAdminOrReadOnly, )
+    permission_classes = (IsOwnerAdminOrReadOnly, )
 
     @action(detail=True, methods=('post',))
     def follow_group(self, request, id):
@@ -50,7 +50,7 @@ class GroupViewSet(viewsets.ModelViewSet):
     def create_group(self, request):
         serializer = GroupSerializer(data=request.data)
         if serializer.is_valid():
-            group = serializer.save(owner=request.user)
+            serializer.save(owner=request.user)
             return Response(serializer.data, status=HTTPStatus.CREATED)
         return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
 
@@ -70,7 +70,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticated, IsAuthorAdminOrReadOnly,)
+    permission_classes = (IsAuthorAdminOrReadOnly, )
 
     @action(detail=True, methods=('post', ))
     def create_comment(self, request, id):
@@ -96,7 +96,7 @@ class AsyncFeedViewSet(viewsets.ModelViewSet):
     async def async_get_queryset(self):
         user = self.request.user
         following_users = Follow.objects.filter(
-            user=user).values_list('author_id', flat=True)
+            user=user).values_list('author', flat=True)
         queryset = Post.objects.filter(
             author__in=following_users).order_by('-pub_date')
         return queryset

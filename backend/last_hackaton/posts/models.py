@@ -1,4 +1,3 @@
-from django.db.models import UniqueConstraint, CheckConstraint
 from django.db import models
 from slugify import slugify
 
@@ -39,6 +38,7 @@ class Group(models.Model):
         super().save(*args, **kwargs)
 
 class GroupSubscription(models.Model):
+    """ORM модель подписок на группы."""
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,
         related_name='group_subscriptions'
@@ -140,7 +140,6 @@ class Comment(models.Model):
         null=True, blank=True, related_name='replies')
 
     class Meta:
-        """ Metaclass Comment """
         ordering = ('-pub_date',)
         verbose_name_plural = 'Комментарии'
 
@@ -150,6 +149,7 @@ class Comment(models.Model):
 
 
 class Feed(models.Model):
+    """ORM модель ленты."""
     user = models.ForeignKey(
         User, on_delete=models.CASCADE,
         related_name='feed',
