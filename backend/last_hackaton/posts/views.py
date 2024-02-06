@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Group, Post, Comment, GroupSubscription, Feed
+from .models import Group, Post, Comment, GroupSubscription
 from .permissions import IsOwnerAdminOrReadOnly, IsAuthorAdminOrReadOnly
 from .serializers import (
     GroupSerializer,
@@ -69,7 +69,7 @@ class GroupViewSet(viewsets.ModelViewSet):
         methods=('delete',),
         permission_classes=(IsOwnerAdminOrReadOnly, )
     )
-    def delete_group(self, request, id):
+    def delete_group(self, request, pk):
         instance = self.get_object()
         if request.user == instance.owner:
             self.perform_destroy(instance)
@@ -88,7 +88,7 @@ class PostViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorAdminOrReadOnly, )
 
     @action(detail=True, methods=('post', ))
-    def create_comment(self, request, id):
+    def create_comment(self, request, pk):
         post = self.get_object()
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
