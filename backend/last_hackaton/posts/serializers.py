@@ -99,3 +99,4 @@ class FeedSerializer(serializers.ModelSerializer):
 
     def get_hashtags(self, obj):
         return [hashtag.name for hashtag in obj.hashtags.all()]
+
