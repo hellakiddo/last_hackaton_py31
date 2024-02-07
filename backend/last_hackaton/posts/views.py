@@ -87,6 +87,9 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = (IsAuthorAdminOrReadOnly, )
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
     @action(detail=True, methods=('post', ))
     def create_comment(self, request, pk):
         post = self.get_object()
