@@ -9,6 +9,18 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = ('title', 'slug', 'description', 'image')
 
+    def validate_slug(self, value):
+        """Валидация уникальности слага при создании группы."""
+        if Group.objects.filter(slug=value).exists():
+            raise serializers.ValidationError("Группа с таким слагом уже существует.")
+        return value
+
+    def validate_title(self, value):
+        """Валидация уникальности заголовка при создании группы."""
+        if Group.objects.filter(title=value).exists():
+            raise serializers.ValidationError("Группа с таким заголовком уже существует.")
+        return value
+
 
 class CommentSerializer(serializers.ModelSerializer):
     """Комменты."""
