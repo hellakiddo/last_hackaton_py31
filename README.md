@@ -69,7 +69,7 @@ http://158.160.9.246
 
 ---
 
-**[Нурмат кызы Алмаш](https://github.com/https://github.com/Mash556)**
+**[Нурмат кызы Алмаш](https://github.com/Mash556)**
 
 **[Абдурашидова Алина](https://github.com/alinaabdurashidova)**
 
