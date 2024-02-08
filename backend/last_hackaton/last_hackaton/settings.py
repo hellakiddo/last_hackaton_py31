@@ -65,10 +65,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'last_hackaton.wsgi.application'
 
-# CSRF_TRUSTED_ORIGINS = [
-#     'http://127.0.0.1', 'http://localhost',
-#     'http://158.160.9.246', 'http://localhost:3000'
-# ]
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1', 'http://localhost',
+    'http://158.160.9.246', 'http://localhost:3000'
+]
 
 CORS_ALLOW_ALL_ORIGINS = True
 
