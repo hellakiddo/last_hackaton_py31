@@ -1,0 +1,16 @@
+django
+djangorestframework
+psycopg2-binary
+gunicorn==20.1.0
+python-decouple
+Pillow
+django-filter
+drf-yasg
+djoser
+python-dotenv
+celery
+redis
+django-jazzmin
+django-cors-headers
+python-slugify
+drf_base64

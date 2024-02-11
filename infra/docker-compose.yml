@@ -1,0 +1,72 @@
+version: '3.9'
+# name: 'last_hackaton'
+
+volumes:
+  static_volume:
+  media_volume:
+  pg_data:
+  redoc:
+
+networks:
+  backend:
+
+services:
+  backend:
+#    image: amir800s/last_hackaton_backend
+    build: ../backend/
+    volumes:
+      - static_volume:/app/static/
+      - media_volume:/app/media/
+    env_file: .env
+    depends_on:
+      - redis
+    container_name: backend
+    networks:
+      - backend
+
+  db:
+    image: postgres:13.10
+    restart: always
+    env_file: .env
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+
+  celery:
+#    image: celery
+    build:
+      context: ../backend/
+    command: celery -A last_hackaton worker
+    volumes:
+      - .:/usr/src/app/
+    depends_on:
+      - backend
+      - redis
+    networks:
+      - backend
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  nginx:
+ #   image: nginx:1.22.1
+    build: .
+    env_file: .env
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../docs/:/usr/share/nginx/html/api/docs/
+      - static_volume:/var/html/static/
+      - media_volume:/var/html/media/
+    depends_on:
+      - backend
+    networks:
+      - backend
