@@ -89,8 +89,14 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+        group = self.request.data.get('group', None)
+        if group:
+            if group.owner == self.request.user:
+                serializer.save(owner=self.request.user, group=group)
+        else:
+            serializer.save(author=self.request.user)
 
-    @action(detail=True, methods=('post', ))
+    @action(detail=True, methods=('post', ), permission_classes=(IsAuthenticated, ))
     def create_comment(self, request, pk):
         post = self.get_object()
         serializer = CommentSerializer(data=request.data)
@@ -99,8 +105,8 @@ class PostViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=HTTPStatus.CREATED)
         return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
 
-    @action(detail=True, methods=('delete',))
-    def delete_comment(self, request, pk=None):
+    @action(detail=True, methods=('delete',), permission_classes=(IsAuthorAdminOrReadOnly, ))
+    def delete_comment(self, request, pk):
         comment = Comment.objects.get(pk=pk)
         comment.delete()
         return Response(status=HTTPStatus.NO_CONTENT)
