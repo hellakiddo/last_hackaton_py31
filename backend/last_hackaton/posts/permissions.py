@@ -9,7 +9,7 @@ class IsOwnerAdminOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
-        return obj.owner == request.user or (request.user and request.user.is_staff)
+        return obj.owner == request.user or (request.user and request.user.is_superuser)
 
 class IsAuthorAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
@@ -20,5 +20,4 @@ class IsAuthorAdminOrReadOnly(BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.method in SAFE_METHODS:
             return True
-        return obj.author == request.user or (request.user and request.user.is_staff)
-
+        return obj.author == request.user or (request.user and request.user.is_superuser)

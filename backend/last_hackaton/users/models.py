@@ -121,7 +121,7 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     """Модель Профиля."""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     bio = models.TextField('О себе', blank=True)
     icon = models.ImageField('Аватар', upload_to='media/', blank=True, null=True)
 

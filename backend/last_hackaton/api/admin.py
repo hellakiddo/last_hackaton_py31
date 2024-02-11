@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from like.models import Like
+from like.models import Like, Favorite
 from posts.models import (
     Group, GroupSubscription,
     Hashtag, Post, Comment, Feed
@@ -44,4 +44,4 @@ class CommentAdmin(admin.ModelAdmin):
 class FeedAdmin(admin.ModelAdmin):
     list_display = ('user', 'post', 'group_post')
 
-admin.site.register(Like)
+admin.site.register([Like, Favorite])

@@ -66,42 +66,50 @@ class LogoutView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def post(self, request):
-        refresh_token = request.data.get('refresh')
-        token = RefreshToken(refresh_token)
-        token.blacklist()
-        return Response('Успешно разлогинилсь', status=HTTPStatus.OK)
-
+        try:
+            refresh_token = request.data.get('refresh')
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response('Успешно разлогинилсь', status=HTTPStatus.OK)
+        except Exception as e:
+            return Response(f'Токен уже заблокирован:  {e}', 403)
 
 class CustomResetPasswordView(APIView):
     def post(self, request):
-        email = request.data.get('email')
-        user = User.objects.get(email=email)
-        user_id = user.id
-        if not user:
-            return Response(
-                {'ValidationError': 'Нет такого пользователя'},
-                status=HTTPStatus.BAD_REQUEST
-            )
+        try:
+            email = request.data.get('email')
+            user = User.objects.get(email=email)
+            user_id = user.id
+            if not user:
+                return Response(
+                    {'ValidationError': 'Нет такого пользователя'},
+                    status=HTTPStatus.BAD_REQUEST
+                )
 
-        send_password_reset_task.delay(email=email, user_id=user_id)
-        return Response(
-            'Сообщения отправлено на почту.', status=HTTPStatus.OK
+            send_password_reset_task.delay(email=email, user_id=user_id)
+            return Response(
+                'Сообщения отправлено на почту.', status=HTTPStatus.OK
         )
+        except:
+            return Response('Мне нужен твой  email аккаунт', 403)
 
 
 class CustomPasswordConfirmView(APIView):
     def post(self, request, *args, **kwargs):
-        new_password = request.data.get('new_password')
-        password_confirm = request.data.get('password_confirm')
-        user_id = self.kwargs.get('uidb64')
-        user = User.objects.get(id=user_id)
-        if new_password != password_confirm:
-            return Response(
-                'Пароли не совпадают', status=HTTPStatus.BAD_REQUEST
-            )
-        user.set_password(new_password)
-        user.save()
-        return Response('Ваш пароль изменен!', status=HTTPStatus.CREATED)
+        try:
+            new_password = request.data.get('new_password')
+            password_confirm = request.data.get('password_confirm')
+            user_id = self.kwargs.get('uidb64')
+            user = User.objects.get(id=user_id)
+            if new_password != password_confirm:
+                return Response(
+                    'Пароли не совпадают', status=HTTPStatus.BAD_REQUEST
+                )
+            user.set_password(new_password)
+            user.save()
+            return Response('Ваш пароль изменен!', status=HTTPStatus.CREATED)
+        except:
+            return Response('Запрос на сопоставление пользователей не существует.', 403)
 
 #  =================== Токены =====================
 class LoginView(TokenObtainPairView):
@@ -128,13 +136,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
         )
         return Response(serializer.data)
 
-    @action(
-        detail=True, methods=('put', 'patch'),
-        permission_classes=(IsOwnerAdminOrReadOnly,)
-    )
-    def update_profile(self, request, pk):
+    @action(detail=False, methods=['put', 'patch'])  
+    def update_profile(self, request):
         """Обновить профиль текущего пользователя."""
-        profile = self.get_object()
+        profile = request.user.profile  # Получаем профиль текущего пользователя из запроса
         serializer = ProfileSerializer(
             profile, data=request.data, context={'request': request}
         )

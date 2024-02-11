@@ -17,7 +17,7 @@ from users.views import (
     CustomResetPasswordView,
     CustomPasswordConfirmView,
     RecomendationAPIView,
-    FavoriteAPIView
+    FavoriteAPIView,
 )
 
 app_name = "api"
@@ -57,5 +57,5 @@ urlpatterns = [
     path('password_confirm/<uidb64>/', CustomPasswordConfirmView.as_view()),
     path('', include(router.urls)),
     path('recomendation/', RecomendationAPIView.as_view()),
-    path('my_favorites/', FavoriteAPIView.as_view())
+    path('my_favorites/', FavoriteAPIView.as_view()),
 ]
