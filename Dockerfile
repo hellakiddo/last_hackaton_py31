@@ -9,3 +9,4 @@ RUN pip install -r requirements.txt --no-cache-dir
 COPY last_hackaton/ .
 
 CMD ["gunicorn", "last_hackaton.wsgi:application", "--bind", "0:8000"]
+
