@@ -133,7 +133,7 @@ class PostViewSet(viewsets.ModelViewSet):
             serializer.save(author=self.request.user)
 
 
-    @action(detail=True, methods=('post', ))
+    @action(detail=True, methods=('post', ), permission_classes=(IsAuthenticated, ))
     def create_comment(self, request, pk):
         """Добавление коментариев"""
         post = self.get_object()
